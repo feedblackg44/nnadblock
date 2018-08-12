@@ -9,6 +9,7 @@ char Logfile[PLATFORM_MAX_PATH];
 Handle cvar_PluginEnabled = INVALID_HANDLE;
 Handle cvar_PluginMode = INVALID_HANDLE;
 Handle g_Regex = INVALID_HANDLE;
+int KickedClients = 0;
 
 public Plugin myinfo = 
 {
@@ -35,22 +36,16 @@ public void KickUnallowed(int iClient)
     if(IsClientInGame(iClient) && !IsFakeClient(iClient))
     {
         char szUsername[MAX_NAME_LENGTH];
+        char szUserID[MAX_TARGET_LENGTH];
         GetClientName(iClient, szUsername, sizeof(szUsername));
-        /*if (StrContains(szUsername, ".ru", true) || 
-        StrContains(szUsername, ".ua", true) || 
-        StrContains(szUsername, ".net", true) || 
-        StrContains(szUsername, ".tf", true) || 
-        StrContains(szUsername, ".com", true) || 
-        StrContains(szUsername, ".org", true) || 
-        StrContains(szUsername, ".su", true) || 
-        StrContains(szUsername, ".cash", true) || 
-        StrContains(szUsername, ".trade", true))*/
+        GetClientAuthId(iClient, AuthId_Steam3, szUserID, sizeof(szUserID));
         int index = MatchRegex(g_Regex, szUsername);
-        if (index < 1)
+        if (index > 0)
         {
-            //KickClient(iClient, "Unallowed Nickname");
+            KickClient(iClient, "Unallowed Nickname");
             PrintToChatAll("%s has been kicked due to unallowed nickname!", szUsername);
-            //LogToFile(Logfile, "%s has been kicked due to unallowed nickname!", szUsername);
+            LogToFile(Logfile, "%s has been kicked due to unallowed nickname! Client id: %s", szUsername, szUserID);
+            KickedClients++;
         }
     }
 }
@@ -67,7 +62,7 @@ public void KickUnallowedMode1()
 {
     if (GetConVarInt(cvar_PluginMode) == 1)
     {
-        for (int iClientCheck = 1; iClientCheck <= MAXPLAYERS; iClientCheck++)
+        for (int iClientCheck = 1; iClientCheck <= MaxClients; iClientCheck++)
         {
             KickUnallowed(iClientCheck);
         }
@@ -78,10 +73,12 @@ public Action KickUnallowedCommand(int iClientAdmin, int args)
 {
     if(GetConVarInt(cvar_PluginEnabled) == 1)
     {
-        for (int iClientCheckCommand = 1; iClientCheckCommand <= MAXPLAYERS; iClientCheckCommand++)
+        for (int iClientCheckCommand = 1; iClientCheckCommand <= MaxClients; iClientCheckCommand++)
         {
             KickUnallowed(iClientCheckCommand);
         }
+        PrintToConsole(iClientAdmin, "%i clients has been kicked.", KickedClients);
+        KickedClients = 0;
     }
     else
     {
@@ -96,36 +93,6 @@ public void OnClientConnected(int iClientCheck)
         KickUnallowed(iClientCheck);
     }
 }
-
-/*public Action OnSay(int iClientAdmin, int args)
-{
-    if(GetConVarInt(cvar_PluginEnabled) == 1)
-	{   
-		char text[192];
-		GetCmdArgString(text, sizeof(text));
-		
-		int startidx = 0;
-		if (text[0] == '"')
-		{
-			startidx = 1;
-			
-			int len = strlen(text);
-			if (text[len-1] == '"')
-			{
-				text[len-1] = '\0';
-			}
-		}
-		
-		if(StrEqual(text[startidx], "!kickunallowed") || StrEqual(text[startidx], "/kickunallowed") || StrEqual(text[startidx], "!kickunallow") || StrEqual(text[startidx], "/kickunallow")) 
-        {
-            KickUnallowedMode1();
-        }
-    }
-    else
-    {
-        PrintToChat(iClientAdmin, "Nickname AdBlock is Disabled!");
-    }
-}*/
 
 public void RegexDomainsName()
 {
