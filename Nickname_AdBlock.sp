@@ -7,9 +7,9 @@
 #define PLUGIN_VERSION "0.2"
 
 char Logfile[PLATFORM_MAX_PATH];
-Handle cvar_PluginEnabled = INVALID_HANDLE;
-Handle cvar_PluginMode = INVALID_HANDLE;
-Handle g_Regex = INVALID_HANDLE;
+Handle cvar_PluginEnabled = null;
+Handle cvar_PluginMode = null;
+Handle g_Regex = null;
 int KickedClients = 0;
 
 public Plugin myinfo = 
@@ -24,7 +24,7 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
     cvar_PluginEnabled = CreateConVar("sm_nnadblock_enabled", "1", "1 - Enabled, 0 - Disabled.");
-    cvar_PluginMode = CreateConVar("sm_nnadblock_mode", "1", "1 - check players every round, 2 - check players when they connect to the server.");
+    cvar_PluginMode = CreateConVar("sm_nnadblock_mode", "1", "1 - checks players every round, 2 - checks players when they connect to the server, 3 - checks players in both situations.");
     BuildPath(Path_SM, Logfile, sizeof(Logfile), "logs/nnadblock.log");
     HookEvent("teamplay_round_start", OnRoundStart, EventHookMode_PostNoCopy);
     RegConsoleCmd("sm_kickunallowed", KickUnallowedCommand);
@@ -61,7 +61,7 @@ public Action OnRoundStart(Handle hEvent, const char[] szEventName, bool bDontBr
 
 public void KickUnallowedMode1()
 {
-    if (GetConVarInt(cvar_PluginMode) == 1)
+    if (GetConVarInt(cvar_PluginMode) == 1 || GetConVarInt(cvar_PluginMode) == 3)
     {
         for (int iClientCheck = 1; iClientCheck <= MaxClients; iClientCheck++)
         {
@@ -89,7 +89,7 @@ public Action KickUnallowedCommand(int iClientAdmin, int args)
 
 public void OnClientConnected(int iClientCheck)
 {
-    if (GetConVarInt(cvar_PluginMode) == 2)
+    if (GetConVarInt(cvar_PluginMode) == 2 || GetConVarInt(cvar_PluginMode) == 3)
     {
         KickUnallowed(iClientCheck);
     }
@@ -97,5 +97,5 @@ public void OnClientConnected(int iClientCheck)
 
 public void RegexDomainsName()
 {
-    g_Regex = CompileRegex("\\.(ru|net|ua|tf|com|org|su|cash|trade|co)");
+    g_Regex = CompileRegex("\\.(ru|net|ua|tf|com|org|su|cash|trade|co|uk)");
 }
