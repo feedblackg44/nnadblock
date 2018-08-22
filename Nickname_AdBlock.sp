@@ -27,8 +27,8 @@ public void OnPluginStart()
     cvar_PluginMode = CreateConVar("sm_nnadblock_mode", "1", "1 - checks players every round, 2 - checks players when they connect to the server, 3 - checks players in both situations.");
     BuildPath(Path_SM, Logfile, sizeof(Logfile), "logs/nnadblock.log");
     HookEvent("teamplay_round_start", OnRoundStart, EventHookMode_PostNoCopy);
-    RegConsoleCmd("sm_kickunallowed", KickUnallowedCommand);
-    RegConsoleCmd("sm_kickunallow", KickUnallowedCommand);
+    RegAdminCmd("sm_kickunallowed", KickUnallowedCommand, ADMFLAG_KICK);
+    RegAdminCmd("sm_kickunallow", KickUnallowedCommand, ADMFLAG_KICK);
     RegexDomainsName();
 }
 
@@ -78,7 +78,7 @@ public Action KickUnallowedAction(Handle hTimer, any iClientCheck)
 
 public void WarningKick(int client)
 {
-    if(IsClientInGame(iClient) && !IsFakeClient(iClient))
+    if(IsClientInGame(client) && !IsFakeClient(client))
     {
         char szUsername[MAX_NAME_LENGTH];
         GetClientName(client, szUsername, sizeof(szUsername));
