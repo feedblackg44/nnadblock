@@ -4,7 +4,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "0.2"
+#define PLUGIN_VERSION "0.3"
 
 char Logfile[PLATFORM_MAX_PATH];
 Handle cvar_PluginEnabled = null;
@@ -65,7 +65,27 @@ public void KickUnallowedMode1()
     {
         for (int iClientCheck = 1; iClientCheck <= MaxClients; iClientCheck++)
         {
-            KickUnallowed(iClientCheck);
+            WarningKick(iClientCheck);
+            CreateTimer(300.0, KickUnallowedAction, iClientCheck);
+        }
+    }
+}
+
+public Action KickUnallowedAction(Handle hTimer, any iClientCheck)
+{
+    KickUnallowed(iClientCheck);
+}
+
+public void WarningKick(int client)
+{
+    if(IsClientInGame(iClient) && !IsFakeClient(iClient))
+    {
+        char szUsername[MAX_NAME_LENGTH];
+        GetClientName(client, szUsername, sizeof(szUsername));
+        int index = MatchRegex(g_Regex, szUsername);
+        if (index > 0)
+        {
+            PrintToChat(client, "[NNAD] Your nickname is unallowed, please change it.");
         }
     }
 }
