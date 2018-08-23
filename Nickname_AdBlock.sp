@@ -7,10 +7,11 @@
 #define PLUGIN_VERSION "0.3"
 
 char Logfile[PLATFORM_MAX_PATH];
+Handle g_iTimerList[MAXPLAYERS+1];
 Handle cvar_PluginEnabled = null;
 Handle cvar_PluginMode = null;
 Handle cvar_WarningEnabled = null;
-//Handle cvar_WarningMode = null;
+Handle cvar_WarningMode = null;
 Handle g_Regex = null;
 int KickedClients = 0;
 
@@ -28,7 +29,7 @@ public void OnPluginStart()
     cvar_PluginEnabled = CreateConVar("sm_nnadblock_enabled", "1", "1 - Enabled, 0 - Disabled.");
     cvar_PluginMode = CreateConVar("sm_nnadblock_mode", "1", "1 - checks players every round, 2 - checks players when they connect to the server, 3 - checks players in both situations.");
     cvar_WarningEnabled = CreateConVar("sm_nnadblock_warning_enabled", "1", "1 - Enabled, kicks users after 5 min, 0 - Disabled, kicks users immediately on round starts.");
-    //cvar_WarningMode = CreateConVar("sm_nnadblock_warning_mode", "2", "1 - warning comes in the center of client's screen, 2 - warning comes in chat.");
+    cvar_WarningMode = CreateConVar("sm_nnadblock_warning_mode", "2", "1 - warning comes in the center of client's screen, 2 - warning comes in chat.");
     
     BuildPath(Path_SM, Logfile, sizeof(Logfile), "logs/nnadblock.log");
     
@@ -75,8 +76,10 @@ public void KickUnallowedMode1()
         {
             if (GetConVarInt(cvar_WarningEnabled) == 1)
             {
+                KillTimer(g_iTimerList[iClientCheck]);
+                g_iTimerList[iClientCheck] = null;
                 WarningKick(iClientCheck);
-                CreateTimer(300.0, KickUnallowedAction, iClientCheck);
+                g_iTimerList[iClientCheck] = CreateTimer(300.0, KickUnallowedAction, iClientCheck);
             }
             else
             {
@@ -100,7 +103,15 @@ public void WarningKick(int client)
         int index = MatchRegex(g_Regex, szUsername);
         if (index > 0)
         {
-            PrintToChat(client, "[NNAD] Your nickname is unallowed, please change it.");
+            if (GetConVarInt(cvar_WarningMode) == 2)
+            {
+                PrintToChat(client, "[NNAD] Your nickname is unallowed, please change it!");
+            }
+            else if (GetConVarInt(cvar_WarningMode) == 1)
+            {
+                SetHudTextParams(-1.0, -1.0, 10.0, 255, 255, 255, 255);
+                ShowHudText(client, -1, "Your nickname is unallowed, please change it!");
+            }
         }
     }
 }
