@@ -1,0 +1,18 @@
+"Phrases"
+{
+    "nnad_kickreason"
+    {
+        "ru"        "Пожалуйста, уберите рекламу в никнейме"
+        "en"        "Unallowed Nickname"
+    }
+    "nnad_kickmessage"
+    {
+        "ru"        "был кикнут за рекламу в никнейме."
+        "en"        "has been kicked due to unallowed nickname."
+    }
+    "nnad_warningmessage"
+    {
+        "ru"        "Ваш никнейм содержит рекламу, пожалуйста, уберите ее"
+        "en"        "Your nickname is unallowed, please change it"
+    }
+}

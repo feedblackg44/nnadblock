@@ -38,6 +38,8 @@ public void OnPluginStart()
     RegAdminCmd("sm_kickunallowed", KickUnallowedCommand, ADMFLAG_KICK);
     RegAdminCmd("sm_kickunallow", KickUnallowedCommand, ADMFLAG_KICK);
     
+    LoadTranslations("nnadblock.phrases");
+    
     RegexDomainsName();
 }
 
@@ -52,8 +54,8 @@ public void KickUnallowed(int iClient)
         int index = MatchRegex(g_Regex, szUsername);
         if (index > 0)
         {
-            KickClient(iClient, "Unallowed Nickname");
-            PrintToChatAll("%s has been kicked due to unallowed nickname!", szUsername);
+            KickClient(iClient, "%t", "nnad_kickreason");
+            PrintToChatAll("%s %t", szUsername, "nnad_kickmessage");
             LogToFile(Logfile, "%s has been kicked due to unallowed nickname! Client id: %s", szUsername, szUserID);
             KickedClients++;
         }
@@ -105,12 +107,12 @@ public void WarningKick(int client)
         {
             if (GetConVarInt(cvar_WarningMode) == 2)
             {
-                PrintToChat(client, "[NNAD] Your nickname is unallowed, please change it!");
+                PrintToChat(client, "[NNAD] %t.", "nnad_warningmessage");
             }
             else if (GetConVarInt(cvar_WarningMode) == 1)
             {
                 SetHudTextParams(-1.0, -1.0, 10.0, 255, 255, 255, 255);
-                ShowHudText(client, -1, "Your nickname is unallowed, please change it!");
+                ShowHudText(client, -1, "%t!", "nnad_warningmessage");
             }
         }
     }
