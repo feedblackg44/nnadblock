@@ -4,7 +4,7 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-#define PLUGIN_VERSION "0.3"
+#define PLUGIN_VERSION "0.6"
 
 char Logfile[PLATFORM_MAX_PATH];
 Handle g_iTimerList[MAXPLAYERS+1];
